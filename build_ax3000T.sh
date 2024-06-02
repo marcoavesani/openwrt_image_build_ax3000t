@@ -8,7 +8,7 @@ RELEASE_MODULES=`cat modules.txt`
 #GIT_REPO_NAME=${GIT_REPO##*/}
 
 GIT_USER=marcoavesani
-GIT_REPO_NAME=openwrt_image_build_rm2100
+GIT_REPO_NAME=openwrt_image_build_ax3000T
 
 echo "Begin build ${RELEASE_NAME} with modules ${RELEASE_MODULES}"
 echo "Using git user ${GIT_USER} with git repo name ${GIT_REPO_NAME}"
@@ -20,22 +20,23 @@ echo "Current directory"
 pwd
 
 # wget https://downloads.openwrt.org/snapshots/targets/ramips/mt7621/openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.xz
-wget https://downloads.openwrt.org/snapshots/targets/ramips/mt7621/openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.zst
+#wget https://downloads.openwrt.org/snapshots/targets/ramips/mt7621/openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.zst
+wget https://downloads.openwrt.org/snapshots/targets/mediatek/filogic/openwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar.zst
 # tar -xvf openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.xz >/dev/null
 # rm -f openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.xz
-tar --use-compress-program=unzstd -xvf openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.zst >/dev/null
-rm -f openwrt-imagebuilder-ramips-mt7621.Linux-x86_64.tar.zst
+tar --use-compress-program=unzstd -xvf openwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar.zst >/dev/null
+rm -f openwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar.zst
 
-cd openwrt-imagebuilder-ramips-mt7621.Linux-x86_64
-make image PROFILE=xiaomi_redmi-router-ac2100 "PACKAGES=${RELEASE_MODULES}"
+cd openwrt-imagebuilder-mediatek-filogic.Linux-x86_64
+make image PROFILE=xiaomi_mi-router-ax3000t "PACKAGES=${RELEASE_MODULES}"
 
 echo "Running dir"
 pwd
 echo "Current ouput dir"
-ls -laR bin/targets/ramips/mt7621/
+ls -laR bin/targets/mediatek/filogic
 
 mkdir /tmp/openwrt
-cp  bin/targets/ramips/mt7621/*.bin /tmp/openwrt
+cp  bintargets/mediatek/filogic/*.bin /tmp/openwrt
 
 if [ $? -eq 0 ] ; then
 	if [[ ! -z "$GITHUB_TOKEN" ]] ; then
@@ -54,8 +55,8 @@ if [ $? -eq 0 ] ; then
 			--user $GIT_USER \
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100.manifest \
-			--file bin/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100.manifest
+			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0.manifest \
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0.manifest
 			
 		sleep 10
 		
@@ -63,8 +64,8 @@ if [ $? -eq 0 ] ; then
 			--user $GIT_USER \
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-rootfs0.bin \
-			--file bin/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-rootfs0.bin
+			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin \
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin
 			
 		sleep 10
 		
@@ -81,8 +82,8 @@ if [ $? -eq 0 ] ; then
 			--user $GIT_USER \
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-kernel1.bin \
-			--file bin/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-kernel1.bin
+			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin \
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin
 		
 		sleep 10	
 		
@@ -90,8 +91,8 @@ if [ $? -eq 0 ] ; then
 			--user $GIT_USER \
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-sysupgrade.bin \
-			--file bin/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-sysupgrade.bin
+			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-sysupgrade.bin \
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-sysupgrade.bin
 	else
 		echo "Skip github release uploading"
 	fi
