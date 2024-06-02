@@ -33,9 +33,9 @@ RUN apt-get update && apt-get install -y zstd
 
 
 
-ENV GIT_REPO=marcoavesani/openwrt_image_build_ax3000T
+ENV GIT_REPO=marcoavesani/openwrt_image_build_ax3000t
 
 COPY . .
 RUN make .
-CMD bash build_ax3000T.sh
+CMD bash build_ax3000t.sh
 #CMD python /app/app.py
