@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Build stuff
           command: |
-            docker build -t marcoavesani/openwrt_image_build_rm2100 .            
+            docker build -t marcoavesani/openwrt_image_build_ax3000T .            
 
 #       - run:
 #           name: Upload to github
@@ -27,7 +27,7 @@ jobs:
 
   buildOpenwrt:
     docker:
-      - image: marcoavesani/openwrt_image_build_rm2100
+      - image: marcoavesani/openwrt_image_build_ax3000T
 #         auth:
 #           username: mydockerhub-user
 #           password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
@@ -36,11 +36,11 @@ jobs:
       - run:
           name: Prepare script
           command: |
-            chmod +x build_RM2100.sh
+            chmod +x build_ax3000T.sh
       - run:
           name: Build
           command: |
-            ./build_RM2100.sh
+            ./build_ax3000T.sh
             
       - store_artifacts:
           path: /tmp/openwrt
