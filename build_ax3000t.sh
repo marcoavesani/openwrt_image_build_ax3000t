@@ -36,7 +36,7 @@ echo "Current ouput dir"
 ls -laR bin/targets/mediatek/filogic
 
 mkdir /tmp/openwrt
-cp  bintargets/mediatek/filogic/*.bin /tmp/openwrt
+cp  bin/targets/mediatek/filogic/*.bin /tmp/openwrt
 
 if [ $? -eq 0 ] ; then
 	if [[ ! -z "$GITHUB_TOKEN" ]] ; then
