@@ -56,16 +56,16 @@ if [ $? -eq 0 ] ; then
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
 			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0.manifest \
-			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0.manifest
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t.manifest
 			
-		sleep 10
+		# sleep 10
 		
-		github-release upload \
-			--user $GIT_USER \
-			--repo $GIT_REPO_NAME \
-			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin \
-			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin
+		# github-release upload \
+		# 	--user $GIT_USER \
+		# 	--repo $GIT_REPO_NAME \
+		# 	--tag $RELEASE_NAME \
+		# 	--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin \
+		# 	--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t-squashfs-rootfs0.bin
 			
 		sleep 10
 		
@@ -76,14 +76,14 @@ if [ $? -eq 0 ] ; then
 			--name sha256sums \
 			--file bin/targets/ramips/mt7621/sha256sums
 			
-		sleep 10
+		# sleep 10
 
-		github-release upload \
-			--user $GIT_USER \
-			--repo $GIT_REPO_NAME \
-			--tag $RELEASE_NAME \
-			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin \
-			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin
+		# github-release upload \
+		# 	--user $GIT_USER \
+		# 	--repo $GIT_REPO_NAME \
+		# 	--tag $RELEASE_NAME \
+		# 	--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin \
+		# 	--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-kernel1.bin
 		
 		sleep 10	
 		
@@ -92,7 +92,7 @@ if [ $? -eq 0 ] ; then
 			--repo $GIT_REPO_NAME \
 			--tag $RELEASE_NAME \
 			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-sysupgrade.bin \
-			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t0-squashfs-sysupgrade.bin
+			--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t-squashfs-sysupgrade.bin
 	else
 		echo "Skip github release uploading"
 	fi
