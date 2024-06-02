@@ -8,7 +8,7 @@ RELEASE_MODULES=`cat modules.txt`
 #GIT_REPO_NAME=${GIT_REPO##*/}
 
 GIT_USER=marcoavesani
-GIT_REPO_NAME=openwrt_image_build_ax3000T
+GIT_REPO_NAME=openwrt_image_build_ax3000t
 
 echo "Begin build ${RELEASE_NAME} with modules ${RELEASE_MODULES}"
 echo "Using git user ${GIT_USER} with git repo name ${GIT_REPO_NAME}"
