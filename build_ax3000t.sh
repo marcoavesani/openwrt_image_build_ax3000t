@@ -58,14 +58,14 @@ if [ $? -eq 0 ] ; then
 			--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0.manifest \
 			--file bin/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t.manifest
 			
-		# sleep 10
+		 sleep 10
 		
-		# github-release upload \
-		# 	--user $GIT_USER \
-		# 	--repo $GIT_REPO_NAME \
-		# 	--tag $RELEASE_NAME \
-		# 	--name openwrt-ramips-mt7621-xiaomi_mi-router-ax3000t0-squashfs-rootfs0.bin \
-		# 	--file bin/targets/ramips/mt7621/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t-squashfs-rootfs0.bin
+		 github-release upload \
+		 	--user $GIT_USER \
+		 	--repo $GIT_REPO_NAME \
+		 	--tag $RELEASE_NAME \
+		 	--name openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t-initramfs-factory.ubi \
+		 	--file bin/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_mi-router-ax3000t-initramfs-factory.ubi
 			
 		sleep 10
 		
