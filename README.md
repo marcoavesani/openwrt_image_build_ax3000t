@@ -4,8 +4,8 @@
 [Homepage](https://github.com/marcoavesani/openwrt_image_build_ax3000t)
 
 # Introduction
-OpenWRT provides support for the Xiaomi Redmi AC2100 router in the snapshot branch with a minimal set of packages.
-The purpose of this repository is to provide daily images, up-to-date with the snapshot, with additional packages customized for my needs.
+OpenWRT provides support for the Xiaomi Redmi AX3000T router in the snapshot branch with a minimal set of packages.
+The purpose of this repository is to provide weekly images, up-to-date with the snapshot, with additional packages customized for my needs.
 
 The firmware is built using the : 
 * [OpenWRT image builder](https://openwrt.org/docs/guide-user/additional-software/imagebuilder)
