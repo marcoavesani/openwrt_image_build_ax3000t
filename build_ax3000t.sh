@@ -28,7 +28,7 @@ tar --use-compress-program=unzstd -xvf openwrt-imagebuilder-mediatek-filogic.Lin
 rm -f openwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar.zst
 
 cd openwrt-imagebuilder-mediatek-filogic.Linux-x86_64
-mkidr -p files
+mkdir -p files
 cp ../auto_upgrade_openwrt.sh ./files
 make image PROFILE=xiaomi_mi-router-ax3000t "PACKAGES=${RELEASE_MODULES}" FILES="files" 
 
