@@ -1,70 +1,83 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
+# See: https://circleci.com/docs/configuration-reference
 version: 2.1
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 
+# Orbs are reusable packages of CircleCI configuration.
+# See: https://circleci.com/docs/2.0/orb-intro/
+orbs:
+  # The docker orb simplifies building, tagging, and pushing Docker images.
+  docker: circleci/docker@2.4.0
 
-jobs:
-  buildDocker:
+# Define reusable executors
+# See: https://circleci.com/docs/reusing-config/#defining-reusable-executors
+executors:
+  # A dedicated machine executor for building Docker images if needed, with more resources.
+  docker-builder:
     machine:
-      image: ubuntu-2004:202107-02
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: Build stuff
-          command: |
-            docker build -t marcoavesani/openwrt_image_build_ax3000t .            
+      image: ubuntu-2204:2023.07.2
 
-#       - run:
-#           name: Upload to github
-#           command: |
-#             ls -al
-#             docker run -t -e GITHUB_TOKEN=$GITHUB_TOKEN -e GIT_REPO=$TRAVIS_REPO_SLUG marcoavesani/openwrt_image_build_rm2100
-            
-
-  buildOpenwrt:
+# Define the jobs for the pipeline.
+# See: https://circleci.com/docs/configuration-reference/#jobs
+jobs:
+  # This job builds the OpenWrt firmware using a pre-built Docker image.
+  build-openwrt:
+    # Specifies the Docker container that will be used to run the job.
     docker:
       - image: marcoavesani/openwrt_image_build_ax3000t
-#         auth:
-#           username: mydockerhub-user
-#           password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+        # If your image is private, uncomment the following lines and add credentials
+        # in your CircleCI project settings (DOCKERHUB_LOGIN, DOCKERHUB_PASSWORD).
+        # auth:
+        #   username: $DOCKERHUB_LOGIN
+        #   password: $DOCKERHUB_PASSWORD
     steps:
+      # Checks out the source code from your repository.
       - checkout
+
+      # Restore cached dependencies to speed up the build.
+      # The cache is keyed by the content of the .config file.
+      - restore_cache:
+          keys:
+            - openwrt-dependencies-v1-{{ checksum "build_ax3000t.sh" }}
+
+      # Run the main build script.
       - run:
-          name: Prepare script
+          name: Build OpenWrt Firmware
           command: |
             chmod +x build_ax3000t.sh
-      - run:
-          name: Build
-          command: |
             ./build_ax3000t.sh
-            
+          # Increase the no-output timeout if your build process has long periods of silence.
+          no_output_timeout: 30m
+
+      # Save the dependency cache for future runs.
+      - save_cache:
+          key: openwrt-dependencies-v1-{{ checksum "build_ax3000t.sh" }}
+          paths:
+            - "/home/circleci/project/openwrt/dl"
+            - "/home/circleci/project/openwrt/staging_dir"
+
+      # Store the compiled firmware and other build outputs as artifacts.
       - store_artifacts:
           path: /tmp/openwrt
-          
+          destination: openwrt-firmware
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+# Define the workflows that orchestrate the jobs.
+# See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  build-workflow:
+  # This workflow runs on every push to any branch.
+  build-on-push:
     jobs:
-#       - buildDocker
-      - buildOpenwrt
-#          requires:
-#              - buildDocker
+      - build-openwrt
 
-  scheduled-workflow:
+  # This workflow runs on a schedule (every Friday at 23:00 UTC).
+  nightly-build:
     triggers:
       - schedule:
+          # Cron syntax for running at 23:00 UTC on Fridays.
           cron: "0 23 * * 5"
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - main
     jobs:
-#       - buildDocker
-      - buildOpenwrt
- #         requires:
- #             - buildDocker
+      - build-openwrt
