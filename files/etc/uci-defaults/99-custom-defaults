@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs once on the first boot after each flash, then deletes itself.
+
+# Spread Wi-Fi and Ethernet interrupts across the MT7981's cores.
+uci -q set irqbalance.irqbalance.enabled='1'
+uci -q commit irqbalance
+
+exit 0

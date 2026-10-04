@@ -1,0 +1,85 @@
+#!/bin/sh
+# Upgrade this router to the latest image published by the CI build.
+#
+# Usage: auto_upgrade_openwrt [-f] [-n]
+#   -f  flash even if the latest release is the one already installed
+#   -n  dry run: download and verify the image, but don't flash it
+#
+# Settings are kept across the upgrade (plain sysupgrade).
+
+REPO="marcoavesani/openwrt_image_build_ax3000t"
+STAMP="/etc/custom_release"
+TMP="/tmp/auto_upgrade"
+
+FORCE=0
+DRY_RUN=0
+while getopts "fnh" opt; do
+	case "$opt" in
+		f) FORCE=1 ;;
+		n) DRY_RUN=1 ;;
+		*) sed -n '2,8s/^# \{0,1\}//p' "$0"; exit 1 ;;
+	esac
+done
+
+die() { echo "Error: $*" >&2; exit 1; }
+
+# fetch URL FILE: curl if installed, else the built-in uclient-fetch.
+fetch() {
+	if command -v curl >/dev/null 2>&1; then
+		curl -fsSL -o "$2" "$1"
+	else
+		wget -q -O "$2" "$1"
+	fi
+}
+
+# The image records which repo it was built from; prefer that.
+if [ -r "$STAMP" ]; then
+	# shellcheck disable=SC1090
+	. "$STAMP"
+	[ -n "$GITHUB_REPO" ] && REPO="$GITHUB_REPO"
+fi
+CURRENT="${RELEASE_TAG:-unknown}"
+
+mkdir -p "$TMP"
+cd "$TMP" || die "cannot use $TMP"
+
+echo "Checking the latest release of $REPO..."
+fetch "https://api.github.com/repos/$REPO/releases/latest" release.json \
+	|| die "cannot reach the GitHub API"
+LATEST="$(jsonfilter -i release.json -e '@.tag_name')"
+[ -n "$LATEST" ] || die "no release found"
+echo "Installed: $CURRENT   Latest: $LATEST"
+
+if [ "$LATEST" = "$CURRENT" ] && [ "$FORCE" -eq 0 ]; then
+	echo "Already up to date (use -f to flash anyway)."
+	exit 0
+fi
+
+URLS="$(jsonfilter -i release.json -e '@.assets[*].browser_download_url')"
+IMAGE_URL="$(echo "$URLS" | grep -- '-squashfs-sysupgrade\.bin$' | head -n 1)"
+SUMS_URL="$(echo "$URLS" | grep '/sha256sums$' | head -n 1)"
+[ -n "$IMAGE_URL" ] || die "release $LATEST has no sysupgrade image"
+[ -n "$SUMS_URL" ] || die "release $LATEST has no sha256sums"
+IMAGE="${IMAGE_URL##*/}"
+
+echo "Downloading $IMAGE..."
+fetch "$IMAGE_URL" "$IMAGE" || die "image download failed"
+fetch "$SUMS_URL" sha256sums || die "sha256sums download failed"
+
+# sha256sums lines look like "<hash> *<file>".
+EXPECTED="$(awk -v f="$IMAGE" '$2 == f || $2 == "*" f { print $1 }' sha256sums)"
+ACTUAL="$(sha256sum "$IMAGE" | cut -d ' ' -f 1)"
+[ -n "$EXPECTED" ] || die "$IMAGE is not listed in sha256sums"
+[ "$EXPECTED" = "$ACTUAL" ] || die "hash mismatch: expected $EXPECTED, got $ACTUAL"
+echo "Checksum OK."
+
+sysupgrade -T "$TMP/$IMAGE" || die "sysupgrade rejected the image"
+echo "Image accepted by sysupgrade -T."
+
+if [ "$DRY_RUN" -eq 1 ]; then
+	echo "Dry run: not flashing. Image left at $TMP/$IMAGE"
+	exit 0
+fi
+
+echo "Flashing $LATEST. The router will reboot and be unreachable for a few minutes."
+exec sysupgrade "$TMP/$IMAGE"
