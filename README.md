@@ -1,29 +1,76 @@
 [![Build Status](https://circleci.com/gh/marcoavesani/openwrt_image_build_ax3000t/tree/master.svg?style=svg)](https://circleci.com/gh/marcoavesani/openwrt_image_build_ax3000t/tree/master)
 [Latest build](https://github.com/marcoavesani/openwrt_image_build_ax3000t/releases/latest)
 
-[Homepage](https://github.com/marcoavesani/openwrt_image_build_ax3000t)
+# OpenWrt images for the Xiaomi Mi Router AX3000T
 
-# Introduction
-OpenWRT provides support for the Xiaomi Redmi AX3000T router in the snapshot branch with a minimal set of packages.
-The purpose of this repository is to provide weekly images, up-to-date with the snapshot, with additional packages customized for my needs.
+Weekly OpenWrt images for the Xiaomi Mi Router AX3000T, built with the
+official [ImageBuilder](https://openwrt.org/docs/guide-user/additional-software/imagebuilder)
+and a custom package list.
 
-The firmware is built using the : 
-* [OpenWRT image builder](https://openwrt.org/docs/guide-user/additional-software/imagebuilder)
-* [OpenWRT's docker image](https://hub.docker.com/r/openwrtorg/imagebuilder)
-* [Custom Docker image ](https://hub.docker.com/r/marcoavesani/openwrt_image_build_ax3000t)
-* [Circle-CI](https://circleci.com/)
+## How it works
 
-# Idea
+- `modules.txt` lists the packages to add (or, with a leading `-`, remove).
+  Comments after `#` are allowed.
+- `files/` is copied into the image as-is (upgrade script, first-boot defaults, sysctl).
+- `build_ax3000t.sh` downloads the ImageBuilder, checks it against OpenWrt's
+  `sha256sums`, builds the image and, when `GITHUB_TOKEN` is set, publishes a
+  release whose notes list the package changes since the previous one.
+- [CircleCI](https://app.circleci.com/pipelines/github/marcoavesani/openwrt_image_build_ax3000t)
+  runs the script on every push and every Friday at 23:00 UTC. Only master
+  builds are released; other branches keep their images as CircleCI artifacts.
 
-The Dockerfile in this repo defines a container based on the [OpenWRT's docker image of the Image Builder](https://hub.docker.com/r/openwrtorg/imagebuilder).
-When the the Docker is run it clones the build script and the modules defined in build_ax3000t.sh.
-Via GitHub actions, every commit triggers an automated Docker build, uploaded to [DockerHub](https://hub.docker.com/r/marcoavesani/openwrt_image_build_ax3000t)
-Then, [Circle-CI](https://app.circleci.com/pipelines/github/marcoavesani/openwrt_image_build_ax3000t) is triggered and the binaries are pushed in the [Latest build](https://github.com/marcoavesani/openwrt_image_build_ax3000t/releases/latest) using [github-release](https://github.com/github-release/github-release)
+### Settings (CircleCI project environment variables)
 
-# The Circle-CI build
-You can view my automated build at [Circle-CI](https://app.circleci.com/pipelines/github/marcoavesani/openwrt_image_build_ax3000t).
-This build calls the build script `build_ax3000t.sh` inside a Docker container of Docker image above.
+| Variable | Default | Meaning |
+|---|---|---|
+| `GITHUB_TOKEN` | — | Token allowed to create releases (required to publish) |
+| `OPENWRT_VERSION` | `snapshot` | `snapshot`, or a release such as `25.12.5` |
+| `KEEP_RELEASES` | `0` | Keep only the newest N releases; `0` keeps them all |
 
-# Acknowledgement
-The code is based on [trinhpham/xiaomi-r3g-openwrt-builder](https://github.com/trinhpham/xiaomi-r3g-openwrt-builder)
+Note: `mesh11sd` is only available in snapshot, so remove it from
+`modules.txt` before switching to a stable release.
 
+### Building locally
+
+```sh
+./build_ax3000t.sh            # images end up in /tmp/openwrt
+```
+
+Needs the usual [ImageBuilder prerequisites](https://openwrt.org/docs/guide-user/additional-software/imagebuilder#prerequisites)
+and `zstd`.
+
+## Upgrading the router
+
+The image includes `/usr/bin/auto_upgrade_openwrt`. It reads the installed
+build from `/etc/custom_release`, downloads the latest release, verifies its
+checksum, tests it with `sysupgrade -T` and flashes it, keeping settings.
+
+```sh
+auto_upgrade_openwrt -n   # dry run: download and verify only
+auto_upgrade_openwrt      # upgrade if a newer build exists
+auto_upgrade_openwrt -f   # reflash even if already on the latest build
+```
+
+The checksum guards against a corrupted download, not against a compromised
+GitHub account.
+
+Routers still running an older build have the old `/auto_upgrade_openwrt.sh`,
+which looks for the previous (mislabelled `ramips-mt7621`) asset names and
+won't find the new ones. Upgrade those once with the new script:
+
+```sh
+wget -O /tmp/auto_upgrade_openwrt https://raw.githubusercontent.com/marcoavesani/openwrt_image_build_ax3000t/master/files/usr/bin/auto_upgrade_openwrt
+sh /tmp/auto_upgrade_openwrt
+```
+
+## First-boot defaults
+
+- irqbalance is enabled (`files/etc/uci-defaults/99-custom-defaults`).
+- BBR is the default TCP congestion control (`files/etc/sysctl.d/12-tcp-bbr.conf`).
+- SQM is installed but not configured: set your line speed in LuCI under
+  Network → SQM QoS. Don't enable flow offloading at the same time, because
+  offloaded traffic bypasses SQM.
+
+## Acknowledgement
+
+Originally based on [trinhpham/xiaomi-r3g-openwrt-builder](https://github.com/trinhpham/xiaomi-r3g-openwrt-builder).

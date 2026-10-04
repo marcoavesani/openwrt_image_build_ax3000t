@@ -1,1 +1,75 @@
-aria2 nano collectd collectd-mod-cpu	collectd-mod-interface	collectd-mod-iwinfo	collectd-mod-load	collectd-mod-memory	collectd-mod-network	collectd-mod-rrdtool curl	ddns-scripts	ddns-scripts-services kmod-wireguard luci-app-ttyd ttyd	luci luci	luci-app-advanced-reboot	luci-app-aria2	luci-app-ddns	luci-app-firewall	luci-app-opkg	luci-app-qos	luci-app-sqm	luci-app-statistics	luci-app-travelmate	luci-app-wifischedule iperf3	luci-proto-ipv6	luci-proto-wireguard	luci-ssl	luci-theme-bootstrap	luci-theme-material	luci-theme-openwrt-2020	netperf	qos-scripts iwinfo kmod-mtd-rw ca-bundle -luci-proto-ppp -ppp -ppp-mod-pppoe -kmod-pppox -kmod-pppoe -kmod-ppp sqm-scripts	swconfig	terminfo	travelmate	wifischedule wireguard-tools	wireless-tools	zlib  arp-scan arp-scan-database libustream-mbedtls20201210 openvpn-easy-rsa luci-app-upnp  luci-app-unbound luci-app-attendedsysupgrade htop aircrack-ng luci-app-nlbwmon dawn luci-app-dawn -wpad-basic-mbedtls wpad-mbedtls arp-scan-database kmod-tcp-bbr luci-proto-wireguard qrencode luci-app-banip mesh11sd speedtestcpp
+# Packages added to (or, with a leading "-", removed from) the image.
+# One or more per line; everything after "#" is ignored.
+# Packages installed by default (ca-bundle, libustream-mbedtls, iwinfo, ...)
+# don't need to be listed, and LuCI apps pull in their backend (dawn, ttyd, ...).
+
+# --- Web UI and administration ---
+luci
+luci-ssl
+luci-app-package-manager      # replaces luci-app-opkg (now only an alias)
+luci-app-advanced-reboot
+luci-app-attendedsysupgrade
+luci-app-firewall
+luci-app-irqbalance           # spreads interrupts across the MT7981's cores
+luci-app-ttyd
+luci-proto-ipv6
+luci-theme-bootstrap
+luci-theme-material
+luci-theme-openwrt-2020
+kmod-mtd-rw
+openssh-sftp-server           # lets modern scp (which uses SFTP) talk to dropbear
+nano
+htop
+curl
+
+# --- Wi-Fi ---
+-wpad-basic-mbedtls
+wpad-mbedtls                  # full wpad: needed for 802.11k/v (dawn) and 802.11s (mesh11sd)
+luci-app-dawn
+mesh11sd                      # snapshot only for now, not in the 25.12 branch
+luci-app-travelmate
+luci-app-wifischedule
+aircrack-ng
+
+# --- Traffic shaping ---
+luci-app-sqm                  # cake SQM for bufferbloat; configure it in LuCI
+luci-app-upnp
+
+# --- DNS, VPN and dynamic DNS ---
+luci-app-unbound
+luci-proto-wireguard          # pulls in wireguard-tools and kmod-wireguard
+qrencode
+openvpn-easy-rsa
+luci-app-ddns
+ddns-scripts-services
+
+# --- Security ---
+luci-app-banip
+
+# --- Monitoring ---
+luci-app-statistics
+collectd-mod-cpu
+collectd-mod-interface
+collectd-mod-iwinfo
+collectd-mod-load
+collectd-mod-memory
+collectd-mod-network
+collectd-mod-rrdtool
+luci-app-nlbwmon
+
+# --- Network tools ---
+iperf3
+netperf
+speedtestcpp
+arp-scan
+arp-scan-database
+tcpdump-mini
+kmod-tcp-bbr                  # enabled by files/etc/sysctl.d/12-tcp-bbr.conf
+
+# --- No PPPoE on this router ---
+-luci-proto-ppp
+-ppp
+-ppp-mod-pppoe
+-kmod-pppox
+-kmod-pppoe
+-kmod-ppp
